@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 from subprocess import Popen, PIPE
-import argparse
 from pythonosc import dispatcher
 from pythonosc import osc_server
-from pathlib import Path
+import os
+import argparse
+
 LINE_BUFFERED = 1
 
 
@@ -26,9 +27,10 @@ def main(args):
         (args.ip, args.port), dis)
     print("Serving on {}".format(server.server_address))
 
-    cwd = str(Path(args.filename).parents[0])
-    process = Popen('mplayer -slave -quiet -fs -osdlevel 0 -fixed-vo'.split() + [args.filename],
-                    stdin=PIPE, universal_newlines=True, bufsize=LINE_BUFFERED, cwd=cwd)
+    cwd = os.path.dirname(args.filename)
+    fname = os.path.basename(args.filename)
+
+    process = Popen('mplayer -slave -quiet -fs -osdlevel 0 -fixed-vo'.split() + [fname], stdin=PIPE, universal_newlines=True, bufsize=LINE_BUFFERED, cwd=cwd)
 
     server.serve_forever()
 
