@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 from subprocess import Popen, PIPE
 from pythonosc import dispatcher
 from pythonosc import osc_server
