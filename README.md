@@ -82,12 +82,13 @@ In SuperCollider, start SuperDirt as usual, then execute the following:
 Then, in Tidal, execute these:
 
 ``` haskell
-let (pos, pos_p) = pF "pos" (Just 0.0)
-    (depth, depth_p) = pF "depth" (Just 0.0)
-    (video, video_p) = pS "video" (Just "0001.mp4")
+let pos = pF "pos"
+    depth = pF "depth"
+    video = pS "video"
 ```
 
-Finally, run emepleier:
+Finally, supposing you have a directory `videos/` with some videos, run
+emepleier passing some video to start playing first:
 
 ```
 python3 ./emepleier.py videos/0001.mp4
@@ -96,5 +97,5 @@ python3 ./emepleier.py videos/0001.mp4
 ## Example
 
 ```haskell
-d1 $ n "0 1 2 1" # s "in" # depth 1.2 # pos "40 50" # video "0012.mp4" # gain 1.60
+d1 $ n "0 1 2 1" # s "in" # depth 1.2 # pos "40 50" # video "0002.mp4"
 ```
