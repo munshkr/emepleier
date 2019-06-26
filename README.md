@@ -77,6 +77,7 @@ In SuperCollider, start SuperDirt as usual, then execute the following:
 		});
 	}
 };
+)
 ```
 
 Then, in Tidal, execute these:
