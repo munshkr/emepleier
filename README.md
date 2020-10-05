@@ -55,25 +55,23 @@ In SuperCollider, start SuperDirt as usual, then execute the following:
 
 ```supercollider
 ~oscaddr = NetAddr.new("127.0.0.1", 5005);    // create the NetAddr
+
 (
 ~video = "";
 ~dirt.receiveAction = { |event|
     var dur, nchan, vel, note, pchan;
 
-    if(event['video']!=nil)
-    {
-        if(event.video!=~video)
-        {
+    if (event['video'] != nil) {
+        if (event.video != ~video) {
             event.postln;
-            ~oscaddr.sendMsg("/loadfile",event.video);
+            ~oscaddr.sendMsg("/loadfile", event.video);
             ~video = event.video;
         }
     };
 
-    if(event['depth']!=nil && event['pos']!=nil && event['n']!=nil)
-    {
-        SystemClock.sched(event.latency,{
-            ~oscaddr.sendMsg("/seek",(event.n+1)*event.depth + event.pos);
+    if (event['depth'] != nil && event['pos'] != nil && event['n'] != nil) {
+        SystemClock.sched(event.latency, {
+            ~oscaddr.sendMsg("/seek", (event.n + 1) * event.depth + event.pos);
         });
     }
 };

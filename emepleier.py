@@ -1,48 +1,61 @@
 #!/usr/bin/env python
-from subprocess import Popen, PIPE
-from pythonosc import dispatcher
-from pythonosc import osc_server
-import os
 import argparse
+import logging
+import os
+from subprocess import PIPE, Popen
+from glob import glob
+
+from pythonosc import dispatcher, osc_server
 
 LINE_BUFFERED = 1
 
 
-def main(args):
+def start_mplayer(*, input_dir, host, port):
     def send_command(command):
-        print(command, flush=True, file=process.stdin)     
+        print(command)
+        print(command, flush=True, file=process.stdin)
 
     def osc_seek(unused_addr, args, position):
         send_command('seek {} 1'.format(position))
 
     def osc_loadfile(unused_addr, args, name):
-        print('Loading file', name)
         send_command('loadfile {}'.format(name))
 
     dis = dispatcher.Dispatcher()
-    dis.map("/seek", osc_seek, "Seek")
-    dis.map("/loadfile", osc_loadfile, "Loadfile")
+    dis.map('/seek', osc_seek, 'Seek')
+    dis.map('/loadfile', osc_loadfile, 'Load File')
 
-    server = osc_server.ThreadingOSCUDPServer(
-        (args.ip, args.port), dis)
-    print("Serving on {}".format(server.server_address))
+    server = osc_server.ThreadingOSCUDPServer((host, port), dis)
+    print('Serving on {}'.format(server.server_address))
 
-    cwd = os.path.dirname(args.filename)
-    fname = os.path.basename(args.filename)
+    blank_video_path = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), 'blank.mpeg')
 
-    process = Popen('mplayer -slave -quiet -fs -osdlevel 0 -fixed-vo'.split() + [fname], stdin=PIPE, universal_newlines=True, bufsize=LINE_BUFFERED, cwd=cwd)
+    process = Popen(
+        'mplayer -slave -idle -quiet -osdlevel 0 -fixed-vo'.split() +
+        [blank_video_path],
+        stdin=PIPE,
+        universal_newlines=True,
+        bufsize=LINE_BUFFERED,
+        cwd=input_dir)
 
     server.serve_forever()
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument(dest='filename', help='filename')
-    parser.add_argument("--ip",
-                        default="127.0.0.1", help="The ip to listen on")
-    parser.add_argument("--port",
-                        type=int, default=5005, help="The port to listen on")
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('input_dir',
+                        help='path to directory containing videos')
+    parser.add_argument('--host',
+                        '-H',
+                        default='127.0.0.1',
+                        help='The host/ip to listen on')
+    parser.add_argument('--port',
+                        '-P',
+                        type=int,
+                        default=5005,
+                        help='The port to listen on')
 
     args = parser.parse_args()
-    print('Argumetns', args)
-    main(args)
+    start_mplayer(input_dir=args.input_dir, host=args.host, port=args.port)
